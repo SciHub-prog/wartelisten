@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>Abo-Verwaltung für kleine Verlage – Interesse-Test</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.5;color:#1b1f24;background:#f6f7f9}
+.draft{background:#fff3cd;color:#664d03;text-align:center;padding:.5rem 1rem;font-size:.9rem}
+main,footer{max-width:40rem;margin:0 auto;padding:1rem}
+h1{font-size:1.6rem;line-height:1.25;margin:1rem 0 .5rem}
+h2{font-size:1.2rem;margin:1.5rem 0 .5rem}
+.lead{font-size:1.05rem;color:#3b4350}
+.badge{display:inline-block;background:#e7f0ff;color:#0b4aa2;border-radius:.4rem;padding:.2rem .6rem;font-size:.85rem}
+ul,ol{padding-left:1.2rem}
+li{margin:.4rem 0}
+.card{background:#fff;border:1px solid #dde1e7;border-radius:.6rem;padding:1rem;margin:1rem 0}
+.price{font-size:1.4rem;font-weight:700}
+.small{font-size:.85rem;color:#566070}
+label{display:block;font-weight:600;margin:.6rem 0 .25rem}
+input,select,button{width:100%;max-width:100%;font:inherit;padding:.7rem;border:1px solid #b9c0cb;border-radius:.4rem;background:#fff}
+button{background:#0b4aa2;color:#fff;border-color:#0b4aa2;font-weight:600;margin-top:.8rem;cursor:pointer}
+button.zweit{background:#fff;color:#0b4aa2}
+button:disabled{opacity:.6;cursor:default}
+#msg{margin-top:.6rem;color:#14532d;font-weight:600}
+button:disabled{opacity:.6;cursor:default}
+footer{font-size:.85rem;color:#566070;border-top:1px solid #dde1e7;margin-top:1.5rem}
+</style>
+</head>
+<body>
+<div class="draft">Produkt in Entwicklung – noch nicht buchbar, nichts wird verkauft</div>
+<main>
+<span class="badge">In Entwicklung – Warteliste</span>
+<h1>Abos, Rechnungen und Mahnungen an einem Ort – ohne Großsystem</h1>
+<p class="lead">Für kleine Zeitschriften, Vereinsblätter und Newsletter mit Bezahlabo.</p>
+<h2>Das bringt es dir</h2>
+<ul>
+<li>Alle Abonnenten und Laufzeiten in einer Übersicht statt in mehreren Tabellen.</li>
+<li>Rechnungen, Mahnungen und Verlängerungen laufen nach festen Regeln, die du einstellst.</li>
+<li>Monatlich kündbar, ohne Lizenzkauf und ohne eigene Installation.</li>
+</ul>
+<h2>So funktioniert es</h2>
+<ol>
+<li>Abonnenten einmal importieren (Tabelle oder Export).</li>
+<li>Rechnungs- und Mahnregeln festlegen.</li>
+<li>Verlängerungen und offene Posten laufend im Blick behalten.</li>
+</ol>
+<div class="card">
+<div class="small">Geplanter Preis</div>
+<div class="price">39 € pro Monat</div>
+<div class="small">Geplanter Preis, monatlich kündbar. Noch nicht buchbar, Änderungen vorbehalten.</div>
+</div>
+
+<section id="wl">
+<h2>Würdest du das für 39 € im Monat nutzen?</h2>
+<label for="heute">Was nutzt du heute? (optional)</label>
+<select id="heute" name="heute">
+<option value="">Bitte wählen</option>
+<option value="Nichts, ich nutze Tabellen">Nichts, ich nutze Tabellen</option>
+<option value="Bis 50 € im Monat">Bis 50 € im Monat</option>
+<option value="50 bis 200 € im Monat">50 bis 200 € im Monat</option>
+<option value="Über 200 € im Monat">Über 200 € im Monat</option>
+<option value="Einmalige Lizenz">Einmalige Lizenz</option>
+</select>
+<div class="knoepfe">
+<button type="button" data-preis="ja">Ja, 39 € im Monat wären es mir wert</button>
+<button type="button" data-preis="billiger" class="zweit">Nur, wenn es deutlich billiger ist</button>
+<button type="button" data-preis="nein" class="zweit">Nein, das brauche ich nicht</button>
+</div>
+<p id="msg" role="status" aria-live="polite"></p>
+<p class="small">Das Produkt ist noch nicht fertig, es wird nichts verkauft. Ein Klick zählt nur deine Antwort: keine E-Mail-Adresse, keine IP-Adresse, keine Cookies. Wer später Bescheid bekommen möchte, schreibt an <a href="mailto:merlyn.jansen95@outlook.com">merlyn.jansen95@outlook.com</a>.</p>
+</section>
+</main>
+<footer>
+<p><a href="../impressum.html">Impressum</a> · <a href="../datenschutz.html">Datenschutz</a></p>
+</footer>
+<script>
+(function(){
+"use strict";
+// Platzhalter, wird von angebote/wartelisten/bauen.py eingesetzt. Solange er nicht ersetzt ist, wird nichts gesendet.
+var ZAEHLER_URL="https://krodzuldguaiujdwijlk.supabase.co/functions/v1/warteliste-zaehler";
+var SEITE="verlag-abo";
+var aktiv=/^https:\/\//.test(ZAEHLER_URL);
+// Sendet nur {seite, ereignis, auswahl?, zeit}: keine Cookies (credentials omit), kein Referrer, kein Speicher im Browser.
+function senden(ereignis,auswahl){
+  if(!aktiv)return Promise.resolve(false);
+  var k={seite:SEITE,ereignis:ereignis,zeit:new Date().toISOString()};
+  if(auswahl)k.auswahl=auswahl;
+  return fetch(ZAEHLER_URL,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(k),credentials:"omit",referrerPolicy:"no-referrer",keepalive:true})
+    .then(function(r){return r.ok;},function(){return false;});
+}
+senden("aufruf");
+var knoepfe=Array.prototype.slice.call(document.querySelectorAll("button[data-preis]")),msg=document.getElementById("msg"),wahl=document.getElementById("heute");
+function sperren(){knoepfe.forEach(function(k){k.disabled=true;});}
+function freigeben(){knoepfe.forEach(function(k){k.disabled=false;});}
+knoepfe.forEach(function(knopf){
+  knopf.addEventListener("click",function(){
+    sperren();
+    if(!aktiv){msg.textContent="Vorschau: Zähler ist nicht eingerichtet, es wurde nichts gesendet.";return;}
+    // Auswahl: „ja“, „billiger“ oder „nein“, dazu optional „ | Was nutzt du heute“ (zusammen höchstens 80 Zeichen).
+    var auswahl=knopf.getAttribute("data-preis");
+    if(wahl.value)auswahl+=" | "+wahl.value;
+    senden("preis",auswahl).then(function(ok){
+      if(ok){msg.textContent="Danke! Das Produkt ist noch nicht fertig; wir zählen nur die Antworten.";}
+      else{msg.textContent="Das hat leider nicht geklappt. Bitte versuche es später noch einmal.";freigeben();}
+    });
+  });
+});
+})();
+</script>
+</body>
+</html>
